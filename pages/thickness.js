@@ -2,53 +2,9 @@ import Head from 'next/head';
 
 import { useState, useEffect } from 'react';
 
-const coefficients = {
-  'seco': {
-    '100': {
-      'linear': {
-        'd0': 3.71e6,
-        'ea': 2
-      },
-      'parabolic': {
-        'd0': 772,
-        'ea': 1.23
-      }
-    },
-    '111': {
-      'linear': {
-        'd0': 6.23e6,
-        'ea': 2
-      },
-      'parabolic': {
-        'd0': 772,
-        'ea': 1.23
-      }
-    }
-  },
-  'humedo': {
-    '100': {
-      'linear': {
-        'd0': 9.7e7,
-        'ea': 2.05
-      },
-      'parabolic': {
-        'd0': 386,
-        'ea': 0.78
-      }
-    },
-    '111': {
-      'linear': {
-        'd0': 1.63e8,
-        'ea': 2.05
-      },
-      'parabolic': {
-        'd0': 386,
-        'ea': 0.78
-      }
-    }
-  }
-};
-const constantK = 0.00008617;
+import { coefficients, constantK } from '../constants/index';
+import getColorFromThickness from '../helpers/getColorFromThickness';
+
 
 
 import Header from '../components/header';
@@ -56,7 +12,7 @@ import Footer from '../components/footer';
 
 export default function Home() {
   const [ variables, setVariables ] = useState({initialThickness: 25, initialThicknessUnit: 'nm', time: 0, timeUnit: 'min', temperature: 0, temperatureUnit: 'c', type: 'seco', orientation: '100', finalThicknessUnit: 'nm'});
-  const [ results, setResults] = useState({linear: '-', parabolic: '-', finalThickness: '-', color: 'rgb(255,255,255)'});
+  const [ results, setResults] = useState({linear: '-', parabolic: '-', finalThickness: '-', colorName: '', colorValue: 'rgb(255,255,255)'});
 
   const calculateNewValues = (values) => {
     const newResults = {};
@@ -72,9 +28,12 @@ export default function Home() {
     newResults.parabolic = actualParabolicCoefficient['d0'] * Math.E ** (-actualParabolicCoefficient['ea']/( constantK * kelvinTemperature));
     const tao = umInitialThickness ** 2 / newResults.parabolic + umInitialThickness / newResults.linear;
     newResults.finalThickness = (0.5)*(newResults.parabolic * (( 1 / (newResults.linear ** 2) + 4 * (tao + hrInitialThickness) / newResults.parabolic) ** (1/2)) - newResults.parabolic / newResults.linear );
-    newResults.color = 'rgb(255,255,255)';
+    newResults.finalThickness = Math.round(newResults.finalThickness * 10000) / 10000
 
-    console.log(tao);
+    let {value, name} = getColorFromThickness(newResults.finalThickness);
+    newResults.colorValue = value;
+    newResults.colorName = name;
+
 
     newResults.finalThickness = values.finalThicknessUnit == 'um'? newResults.finalThickness : newResults.finalThickness * 1000 ;
 
@@ -83,7 +42,9 @@ export default function Home() {
     newResults.parabolic = newResults.parabolic.toExponential(4);
     newResults.finalThickness = newResults.finalThickness.toExponential(4);
 
-    setResults(newResults);
+    
+
+    return (newResults);
   }
   const changeHandler = (e) => {
     e.preventDefault();
@@ -92,11 +53,11 @@ export default function Home() {
     newValue[e.target.id] = e.target.type == 'number'? parseFloat(e.target.value) : e.target.value;
     setVariables(newValue);
 
-    calculateNewValues(newValue);
+    setResults(calculateNewValues(newValue));
   };
 
 
-  useState(()=>{calculateNewValues(variables)},[]);
+  useState(()=>{setResults(calculateNewValues(variables))},[]);
 
 
   return (
@@ -174,19 +135,19 @@ export default function Home() {
           <h2 className='font-bold'>Resultados</h2>
 
           {/* Constante Lineal */}
-          <div className='flex flex-row'>
+          <div className='flex mb-3 flex-col sm:flex-row'>
             <p className='font-semibold'>B/A (Linear):</p>
             <p className='ml-4'>{results.linear}</p>
           </div>
 
           {/* Constante Parabólica */}
-          <div className='flex flex-row'>
+          <div className='flex mb-3 flex-col sm:flex-row'>
             <p className='font-semibold'>B (Parabólica):</p>
             <p className='ml-4'>{results.parabolic}</p>
           </div>
 
           {/* Grosor final */}
-          <div className='flex flex-row'>
+          <div className='flex mb-3 flex-col sm:flex-row'>
             <p className='font-semibold'>Grosor final:</p>
             <p className='ml-4'>{results.finalThickness}</p>
             <select onChange={changeHandler} id="finalThicknessUnit" defaultValue='nm' className='text-center rounded-md border border-gray-500 border-black ml-4'>
@@ -196,9 +157,12 @@ export default function Home() {
           </div>
 
           {/* Color final */}
-          <div className='flex flex-row items-center'>
+          <div className='flex items-center mb-3 flex-col sm:flex-row'>
             <p className='font-semibold'>Color de la película:</p>
-            <div className='ml-4 border border-black rounded-sm' style={{height: '25px',width: '25px', backgroundColor: results.color}}></div>
+            <div className='flex flex-row items-center'>
+              <span className='ml-4'>{results.colorName}</span>
+              <div className='ml-4 border border-black rounded-sm' style={{height: '25px',width: '25px', backgroundColor: results.colorValue}}></div>
+            </div>
           </div>
         </div>
         
