@@ -1,15 +1,15 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 
-import calculateTimetoThickness from '../helpers/calculateTimetoThickness';
+import calculateThicknesstoTime from '../helpers/calculateThicknesstoTime';
 
 import Header from '../components/header';
 import Footer from '../components/footer';
 import ChartThicknessTime from '../components/chartThicknessTime';
 
-export default function Home() {
-  const [ variables, setVariables ] = useState({initialThickness: 25, initialThicknessUnit: 'nm', time: 0, timeUnit: 'min', temperature: 0, temperatureUnit: 'c', type: 'seco', orientation: '100', finalThicknessUnit: 'nm'});
-  const [ results, setResults] = useState({linear: '-', parabolic: '-', finalThickness: '-', colorName: '', colorValue: 'rgb(255,255,255)'});
+export default function Time() {
+  const [ variables, setVariables ] = useState({initialThickness: 25, initialThicknessUnit: 'nm', finalThickness: 25, finalThicknessUnit: 'nm', temperature: 0, temperatureUnit: 'c', type: 'seco', orientation: '100', timeUnit: 'hrs'});
+  const [ results, setResults] = useState({linear: '-', parabolic: '-', time: '-', colorName: '', colorValue: 'rgb(255,255,255)'});
 
   
   const changeHandler = (e) => {
@@ -19,11 +19,11 @@ export default function Home() {
     newValue[e.target.id] = e.target.type == 'number'? parseFloat(e.target.value) : e.target.value;
     setVariables(newValue);
 
-    setResults(calculateTimetoThickness(newValue));
+    setResults(calculateThicknesstoTime(newValue));
   };
 
 
-  useState(()=>{setResults(calculateTimetoThickness(variables))},[]);
+  useState(()=>{setResults(calculateThicknesstoTime(variables))},[]);
 
 
   return (
@@ -37,7 +37,7 @@ export default function Home() {
       <Header/>
 
       <main className='flex flex-col items-center text-center mb-6 mx-auto max-w-full'>
-        <h1 className='text-2xl font-bold'>Cálculo de grosor final de óxido en oblea de silicio</h1>
+        <h1 className='text-2xl font-bold'>Cálculo de tiempo de oxidación para una película de óxido</h1>
         <p className='text-2xl mb-3'>Llene los campos solicitados</p>
         <form className='flex flex-col space-y-5 mt-4 px-2'>
 
@@ -53,14 +53,14 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Tiempo de Oxidación */}
+          {/* Grosor final */}
           <div className='text-2xl'>
-            <label>Tiempo de oxidación</label>
+            <label>Grosor final</label>
             <div className='flex flex-row place-content-around'>
-              <input id="time" onChange={changeHandler} type="number" defaultValue={0} className='pl-2 border border-gray-500 rounded-md w-9/12 md:w-full md:mr-3'/>
-              <select id="timeUnit" onChange={changeHandler} className='text-center rounded-md border border-gray-500 border-black'>
-                <option value="min">min</option>
-                <option value="hrs">hrs</option>
+              <input id="finalThickness" onChange={changeHandler} type="number" defaultValue={25} className='pl-2 border border-gray-500 rounded-md w-9/12 md:w-full md:mr-3'/>
+              <select id="finalThicknessUnit" onChange={changeHandler} defaultValue='nm' className='text-center rounded-md border border-gray-500 border-black'>
+                <option value="um">μm</option>
+                <option value="nm">nm</option>
               </select>
             </div>
           </div>
@@ -112,13 +112,13 @@ export default function Home() {
             <p className='ml-4'>{results.parabolic}</p>
           </div>
 
-          {/* Grosor final */}
+          {/* Tiempo */}
           <div className='flex mb-3 flex-col sm:flex-row'>
-            <p className='font-semibold'>Grosor final:</p>
-            <p className='ml-4'>{results.finalThickness}</p>
-            <select onChange={changeHandler} id="finalThicknessUnit" defaultValue='nm' className='text-center rounded-md border border-gray-500 border-black ml-4'>
-              <option value="um">μm</option>
-              <option value="nm">nm</option>
+            <p className='font-semibold'>Tiempo:</p>
+            <p className='ml-4'>{results.time}</p>
+            <select onChange={changeHandler} id="timeUnit" defaultValue='hrs' className='text-center rounded-md border border-gray-500 border-black ml-4'>
+              <option value="hrs">hrs</option>
+              <option value="min">min</option>
             </select>
           </div>
 

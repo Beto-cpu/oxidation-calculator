@@ -32,7 +32,7 @@ export default function Home() {
               </div>
             </a>
           </Link>
-          <Link href="/">
+          <Link href="/time">
             <a>
               <div className='flex flex-col items-center mb-8 md:mb-3 text-3xl hover:underline'>
                 <Image  height={300}  src={image2} className="object-cover"/>

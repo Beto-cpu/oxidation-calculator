@@ -18,7 +18,7 @@ export default function Header(){
                 <Link href='/thickness'>
                     <a className='py-2 px-4 hover:bg-gray-300'>Cálculo de grosor final</a>
                 </Link>
-                <Link href='/'>
+                <Link href='/time'>
                     <a className='py-2 px-4 hover:bg-gray-300'>Cálculo de tiempo de oxidación</a>
                 </Link>
             </div>
