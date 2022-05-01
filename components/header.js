@@ -5,7 +5,7 @@ import logo from '../assets/images/logo.png'
 export default function Header(){
     return(
         <div className='flex flex-col mb-3'>
-            <div className='flex flex-row px-4 py-3 bg-blue-500'>
+            <div className='flex flex-row px-4 py-3 bg-blue-500 justify-center md:justify-start'>
                 <div>
                     <Link href='/'>
                         <a>
